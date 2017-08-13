@@ -26,7 +26,8 @@ Regarding, handling concurrent requests, my approach is as follows: there is alw
 
 Unit Tests: 
 
-The unit tests for the paymentservice are in the tests folder. They currently do not work. I have nevertheless uploaded it to get help on the matter. The issue is that the tests always seem to pass!!,even when I set the assertions to be such that they should not be satisfied.  
+The unit tests for the paymentservice are in the tests folder. Only 2 out of the 3 unit tests work. The third one, for testing concurrent requests is not working. I have nevertheless uploaded it to get help on the matter. The issue is that the tests times out. 
+
 
 To run the application, run the following commands:
 
