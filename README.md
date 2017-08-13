@@ -34,19 +34,16 @@ npm install
 node server.js
 
 You'll also need a mongoDB locally installed with default DB privileges (none). It should be accessible through "mongodb://127.0.0.1/pnplabs"
-alternatovely, the environment must set the url to the DB through the PROCESS.ENV.URl variable. 
+alternatovely, the environment must set the url to the DB through the PROCESS.ENV.URl variable. Further the environment must also set the PROCESS.ENV.PORT variable. 
 
-The db must have a databse called 'pnplabs'
+The db must have a database called 'pnplabs'
 The database should have a collection called 'useraccts'
 The collection should have sample data in the form {userID: "u01", bal: 2000}
 
-Once the node server starts listening, you can go to 
+Once the node server starts listening on port 3000, you can go to 
 http://localhost:3000/withdrawal/u01/23    (where the lat two url parameters are the userID and amount)
 
 and get the balance displayed in the browser from the server
 
 Any other api point called will error out. 
-
-
-Then go to the browser and enter the following:
 
