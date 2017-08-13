@@ -5,7 +5,6 @@
   "main": "index.js",
   "scripts": {
     "test": "mocha tests --recursive --watch"
-    
   },
   "author": "Vinod Kumar",
   "license": "ISC",
@@ -16,6 +15,8 @@
   },
   "devDependencies": {
     "chai": "^4.1.1",
+    "chai-checkmark": "^1.0.1",
+    "chai-spies": "git+https://github.com/chaijs/chai-spies.git",
     "mocha": "^3.5.0",
     "sinon": "^3.2.0"
   }

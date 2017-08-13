@@ -11,6 +11,7 @@ class PaymentService {
 	withdraw(userID, amt, reqTime) {
 		//express-timestamp generates a moment object that needs to be converted to a date object
 		reqTime = reqTime.toDate(); 
+		
 
 		return new Promise((resolve, reject) => {
 
@@ -50,8 +51,8 @@ class PaymentService {
 	processRequest(reqTime, latestTrans, userAcctObj, amt) {
 
 		return new Promise((resolve, reject) => {
-			debugger;
-			var timeDiff = (reqTime.getTime() - latestTrans.getTime())/1000 
+			
+			var timeDiff = (reqTime- latestTrans)/1000
 					
 
 					//timeDiff between 2 transactions is greater than 5min
@@ -66,19 +67,20 @@ class PaymentService {
 								bal = bal - amt;
 								userAcctObj.bal = bal;
 								
-								if ((userAcctObj.createdAt)===undefined) {userAcctObj.createdAt=Date.now(); } ;
+								if ((userAcctObj.createdAt)===undefined) {userAcctObj.createdAt=reqTime; } ;
 								
 								
 								var updatedData = {bal:userAcctObj.bal, 
-													updatedAt: Date.now(),
+													updatedAt: reqTime,
 													createdAt: userAcctObj.createdAt
 													} ;
 								
-								resolve(paymentModel.findOneAndUpdate({userID: userAcctObj.userID}, updatedData, (err, val) => {
-									debugger;
+								paymentModel.findOneAndUpdate({userID: userAcctObj.userID}, updatedData, (err, val) => {
+									
 									if (err) throw(err);
-									return bal;
-								}));												
+
+									resolve(bal);
+								});												
 						} //end of else of amt > bal	
 					}//end of if timeDiff
 
