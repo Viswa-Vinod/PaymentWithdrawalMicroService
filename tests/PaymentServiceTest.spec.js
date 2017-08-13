@@ -1,82 +1,75 @@
 
 const chai = require('chai');
-var expect = chai.expect;
-var sinon = require('sinon');
+const chaiAsPromised = require('chai-as-promised');
+
+const moment = require('moment');
+
+const expect = chai.expect;
+const sinon = require('sinon');
 const paymentModel = require('../payment-model');
 const PaymentSvc = require('../PaymentService')
-
-
+const paymentSvc = new PaymentSvc();
+chai.use(chaiAsPromised);
 
 describe('The payment service module', function () {  
+  var sandbox;
+  const userID = "u01";  
+  const reqTime = moment(Date.now());    
+
   beforeEach(() => {
-    this.sandbox = sinon.sandbox.create();
+  
+    sandbox = sinon.sandbox.create();
   });
 
   afterEach(() => {
-    this.sandbox.restore();
-  });
-
-  const paymentSvc = new PaymentSvc();
-  const userID = "u01";
+    sandbox.restore();
   
-  const reqTime = Date.now();   
+  });
+  
 
-  it('should return updated balance if amt requested is within balance and is not part of a concurrent request', function * () {
+  it('should return updated balance if amt requested is within balance and is not part of a concurrent request', function  () {
     let amt = 2;
-    const userDB = [{userID: "u01", updatedAt: new Date(Date.now() - 600), bal: 1000}];
-    const findStub = this.sandbox.stub(paymentModel, 'find', (userObj, cb)=>{cb(null, userDB)}) ;
-    const findOneAndUpdateStub  = this.sandbox.stub(paymentModel, 'findOneAndUpdate', 
+    const userDB = [{userID: "u01", createdAt: Date.now() - 1200000, updatedAt: Date.now()/1000 - 600, bal: 1000}];
+    const findStub = sandbox.stub(paymentModel, 'find').callsFake( (userObj, cb)=>{cb(null, userDB)}) ;
+    const findOneAndUpdateStub  = sandbox.stub(paymentModel, 'findOneAndUpdate').callsFake( 
                                   (userObj, updatedUserObj, cb) => {
                                     cb(null,1);
                                   });  
-  
+    
       
-    const result = yield paymentSvc.withdraw(userID, amt, Date.now())
-    
-    expect(findStub).to.have.been.calledWith({userID: userID});
-    expect(paymentSvc.processRequest).to.have.been.calledWith(reqTime, userDB.updatedAt, userDB[0], amt);
-    expect(findOneAndUpdateStub).to.have.been.calledWith({userID: userID}, {bal:998, updatedAt: reqTime});
-    expect(result).to.equal(998);
-  
+      var result = paymentSvc.withdraw(userID, amt, reqTime);
+      return expect(result).to.eventually.equal(998);   
+   
   });
 
-  it('should return "insufficient balance" message if amt requested is greater than balance', function * () {
+  it('should return insufficient balance message if amt requested is greater than balance', function  () {
     let amt = 3000;
-    const userDB = [{userID: "u01", updatedAt: new Date(Date.now() - 600), bal: 1000}];
-    const findStub = this.sandbox.stub(paymentModel, 'find', (userObj, cb)=>{cb(null, userDB)}) ;
-    const findOneAndUpdateStub  = this.sandbox.stub(paymentModel, 'findOneAndUpdate', 
-                                  (userObj, updatedUserObj, cb) => {
-                                    cb(null,1);
-                                  });     
+    const userDB = [{userID: "u01", createdAt: Date.now() - 1200000, updatedAt: Date.now()/1000 - 600, bal: 1000}];
+    const findStub = sandbox.stub(paymentModel, 'find').callsFake((userObj, cb)=>{cb(null, userDB)}) ;
+    // const findOneAndUpdateStub  = sandbox.stub(paymentModel, 'findOneAndUpdate', 
+    //                               (userObj, updatedUserObj, cb) => {
+    //                                 cb(null,1);
+    //                               });     
     
-    
-          
-    const result = yield paymentSvc.withdraw(userID, amt, Date.now())
-    
-    expect(findStub).to.have.been.calledWith({userID: userID});
-    
-    expect(paymentSvc.processRequest).to.have.been.calledWith(reqTime, userDB.updatedAt, userDB[0], amt);
-    expect(findOneAndUpdateStub).to.not.have.been.called();
-    expect(result).to.deep.equal("insufficient balance");
+      var result = paymentSvc.withdraw(userID, amt, reqTime);
+      return expect(result).to.be.rejectedWith("insufficient balance");   
+      //return expect(result).to.eventually.be("sdfsdfsdf");
+   
     
   });
 
-  it('should return "transaction rejected" message if request is within 5min of previous request', function * () {
+  it('should return "transaction rejected" message if request is within 5min of previous request', function () {
+    this.timeout(15000);
     let amt = 2;
-    const userDB = [{userID: "u01", updatedAt: new Date(Date.now() - 200), bal: 1000}];
-    const findStub = this.sandbox.stub(paymentModel, 'find', (userObj, cb)=>{cb(null, userDB)}) ;
-    const findOneAndUpdateStub  = this.sandbox.stub(paymentModel, 'findOneAndUpdate', 
-                                  (userObj, updatedUserObj, cb) => {
-                                    cb(null,1);
-                                  });     
-    
-    
-    const result = yield paymentSvc.withdraw(userID, amt, Date.now());
-
-    expect(findStub).to.have.been.calledWith({userID: userID});
-    expect(paymentSvc.processRequest).to.have.been.calledWith(reqTime, userDB.updatedAt, userDB[0], amt);
-    expect(findOneAndUpdateStub).to.not.have.been.called();
-    expect(result).to.equal("Transaction rejected");
-    
+    const userDB = [{userID: "u01", createdAt: Date.now() - 1200000, updatedAt: Date.now()/1000 - 200, bal: 1000}];
+    const findStub = sandbox.stub(paymentModel, 'find').callsFake((userObj, cb)=>{cb(null, userDB)}) ;
+    // const findOneAndUpdateStub  = sandbox.stub(paymentModel, 'findOneAndUpdate', 
+    //                               (userObj, updatedUserObj, cb) => {
+    //                                 cb(null,1);
+    //                               });     
+   
+    var result = paymentSvc.withdraw(userID, amt, reqTime);
+    return expect(result).to.be.rejectedWith("Transaction rejecte"); 
+   
   });
 });

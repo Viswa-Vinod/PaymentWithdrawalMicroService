@@ -15,8 +15,7 @@
   },
   "devDependencies": {
     "chai": "^4.1.1",
-    "chai-checkmark": "^1.0.1",
-    "chai-spies": "git+https://github.com/chaijs/chai-spies.git",
+    "chai-as-promised": "^7.1.1",
     "mocha": "^3.5.0",
     "sinon": "^3.2.0"
   }
