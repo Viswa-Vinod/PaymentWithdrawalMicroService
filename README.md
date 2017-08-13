@@ -28,4 +28,25 @@ Unit Tests:
 
 The unit tests for the paymentservice are in the tests folder. They currently do not work. I have nevertheless uploaded it to get help on the matter. The issue is that the tests always seem to pass!!,even when I set the assertions to be such that they should not be satisfied.  
 
+To run the application, run the following commands:
+
+npm install
+node server.js
+
+You'll also need a mongoDB locally installed with default DB privileges (none). It should be accessible through "mongodb://127.0.0.1/pnplabs"
+alternatovely, the environment must set the url to the DB through the PROCESS.ENV.URl variable. 
+
+The db must have a databse called 'pnplabs'
+The database should have a collection called 'useraccts'
+The collection should have sample data in the form {userID: "u01", bal: 2000}
+
+Once the node server starts listening, you can go to 
+http://localhost:3000/withdrawal/u01/23    (where the lat two url parameters are the userID and amount)
+
+and get the balance displayed in the browser from the server
+
+Any other api point called will error out. 
+
+
+Then go to the browser and enter the following:
 
